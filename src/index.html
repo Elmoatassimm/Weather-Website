@@ -32,7 +32,7 @@
       #tempurature {
         font-family: "Lucida Console", "Courier New", monospace;
         /* Ensure consistent font family */
-        font-size: 5rem;
+        font-size: 3.5rem;
       }
     </style>
   </head>
@@ -51,7 +51,7 @@
             </button>
 
             <div class="flex justify-end text-xs">
-              <p class="mr-1">°C</p>
+              <p class="mr-1">°K</p>
               <label
                 for="toggleTwo"
                 class="h-2 cursor-pointer select-none text-dark dark:text-white"
@@ -66,7 +66,7 @@
                   ></div>
                 </div>
               </label>
-              <p>°F</p>
+              <p>°C</p>
             </div>
           </div>
 
@@ -84,7 +84,7 @@
                   alt="Pin"
                 />
               </span>
-              <span class="ml-2">New York,USA</span>
+              <span class="ml-2" id="localisation"></span>
             </p>
 
             <p class="flex items-end mr-2">
@@ -97,7 +97,7 @@
             style="margin-left: 1.5rem"
           >
             <p class="flex items-start">
-              <span class="ml-2" id="date-today">Sunday 10 oct</span>
+              <span class="ml-2" id="date-today"></span>
             </p>
 
             <p class="flex items-end mr-2">
@@ -106,10 +106,10 @@
           </div>
 
           <div class="flex justify-center items-center mt-2">
-            <p class="mt-8" id="tempurature">25°</p>
+            <p class="mt-8" id="tempurature"></p>
           </div>
 
-          <img src="img/Group 2.png" class="h-1/4 m-auto" alt="" />
+          <img id="weatherimage" src="img/Group 2.png" class="h-1/4 mt-8 m-auto" alt="" />
         </div>
         <div class="  w-[71%] z-10 bg-[#E2EFFE] rounded-3xl">
           <div class="ml-5 mt-6 h-4 w-full flex justify-start">
