@@ -35,9 +35,14 @@ async function getWeatherData() {
                   let localisation = document.getElementById("localisation");
                   let date = document.getElementById("date-today");
                   let tempp = document.getElementById("tempurature");
+                  let sunrise = document.getElementById("sunrise");
+                  let sunset = document.getElementById("sunset");
       
                   localisation.textContent = weather_data.name;
                   date.textContent = formatTimestampToDayAndMonth(weather_data.dt);
+                  // Display sunrise and sunset times in HH:MM format
+            sunrise.textContent = formatTimestampToTime(weather_data.sys.sunrise);
+            sunset.textContent = formatTimestampToTime(weather_data.sys.sunset);
       
                   // Store the temperature in Kelvin
                   tempInKelvin = weather_data.main.temp;
@@ -97,10 +102,28 @@ async function getWeatherData() {
               updateTemperatureDisplay(tempInKelvin, 'K');
           }
       });
+
+
+      // Function to format the Unix timestamp into HH:MM format
+function formatTimestampToTime(timestamp) {
+          const date = new Date(timestamp * 1000); // Convert to milliseconds
+          let hours = date.getHours();
+          let minutes = date.getMinutes();
+      
+          // Add leading zero to minutes if necessary
+          minutes = minutes < 10 ? '0' + minutes : minutes;
+      
+          // Return time in HH:MM format
+          return `${hours}:${minutes}`;
+      }
+      let btn_refresh = document.getElementById("btn-refresh");
+btn_refresh.addEventListener("click", (e) => {
+    window.location.reload(); 
+});
+
       
       // Call the function to display weather data
       displayWeatherData();
       
-      // Global variable to store temperature in Kelvin
-      let tempInKelvin = 0;
+     
       
