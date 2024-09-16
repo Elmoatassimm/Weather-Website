@@ -48,6 +48,11 @@ const CONFIG = {
           return kelvin - 273.15;
       }
       
+      // Convert Celsius to Kelvin
+      function celsiusToKelvin(celsius) {
+          return celsius + 273.15;
+      }
+      
       // Update UI with weather data
       function updateWeatherUI(weatherData) {
           document.getElementById("localisation").textContent = weatherData.name;
@@ -59,6 +64,8 @@ const CONFIG = {
           document.getElementById("pressure").textContent = weatherData.main.pressure;
       
           const tempInKelvin = weatherData.main.temp;
+          const tempElement = document.getElementById('tempurature');
+          tempElement.dataset.kelvin = tempInKelvin; // Store Kelvin value in data attribute
           updateTemperatureDisplay(tempInKelvin, 'K');
       
           if (weatherData.weather && weatherData.weather[0]) {
@@ -69,7 +76,7 @@ const CONFIG = {
       // Update temperature display
       function updateTemperatureDisplay(temp, unit) {
           const tempElement = document.getElementById('tempurature');
-          tempElement.textContent = `${temp.toFixed(1)}°${unit}`;
+          tempElement.textContent = `${temp.toFixed(1)}°`;
       }
       
       // Change weather icon based on weather conditions
@@ -86,7 +93,8 @@ const CONFIG = {
       document.getElementById('toggleTwo').addEventListener('change', function() {
           const tempInKelvin = parseFloat(document.getElementById('tempurature').dataset.kelvin);
           if (this.checked) {
-              updateTemperatureDisplay(kelvinToCelsius(tempInKelvin), 'C');
+              const tempInCelsius = kelvinToCelsius(tempInKelvin);
+              updateTemperatureDisplay(tempInCelsius, 'C');
           } else {
               updateTemperatureDisplay(tempInKelvin, 'K');
           }
