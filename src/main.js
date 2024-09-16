@@ -1,135 +1,114 @@
-// Function to fetch weather data
-async function getWeatherData() {
-          try {
-              // Get IP address
-              const ipRes = await fetch("https://api.ipify.org?format=json");
-              const ipData = await ipRes.json();
-              const adressip = ipData.ip;
+// Configuration for APIs
+const CONFIG = {
+          ipifyUrl: "https://api.ipify.org?format=json",
+          ipApiUrl: "https://apiip.net/api/check",
+          ipApiKey: "9c35b194-d520-4ebd-a41a-d67cbfcb3638",
+          openWeatherMapUrl: "https://api.openweathermap.org/data/2.5/weather",
+          openWeatherApiKey: "ba4936b0097bb44f9d38f2bbee24bc54",
+      };
       
-              // Get location info using IP
-              const apiip_key = "9c35b194-d520-4ebd-a41a-d67cbfcb3638";
-              const locationRes = await fetch(`https://apiip.net/api/check?ip=${adressip}&accessKey=${apiip_key}`);
-              const location_info = await locationRes.json();
-      
-              // Get weather info using location (lat, lon)
-              const lat = location_info.latitude;
-              const lon = location_info.longitude;
-              const openweathermap_api_key = "ba4936b0097bb44f9d38f2bbee24bc54";
-              const weatherRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${openweathermap_api_key}`);
-              const weather_data = await weatherRes.json();
-      
-              // Return the weather data
-              return weather_data;
-          } catch (error) {
-              console.error('Error:', error);
-              return null;
-          }
+      // Fetch user's IP address
+      async function fetchIpAddress() {
+          const response = await fetch(CONFIG.ipifyUrl);
+          if (!response.ok) throw new Error('Failed to fetch IP address');
+          const data = await response.json();
+          return data.ip;
       }
       
-      // Function to display weather data
-      async function displayWeatherData() {
-          try {
-              const weather_data = await getWeatherData();
-              if (weather_data) {
-                  console.log(weather_data);
-                  let localisation = document.getElementById("localisation");
-                  let date = document.getElementById("date-today");
-                  let tempp = document.getElementById("tempurature");
-                  let sunrise = document.getElementById("sunrise");
-                  let sunset = document.getElementById("sunset");
-                  let wind_speed = document.getElementById("wind_speed");
-                  let humidity = document.getElementById("humidity");
-                  let pressure = document.getElementById("pressure");
-      
-                  localisation.textContent = weather_data.name;
-                  date.textContent = formatTimestampToDayAndMonth(weather_data.dt);
-                  // Display sunrise and sunset times in HH:MM format
-            sunrise.textContent = formatTimestampToTime(weather_data.sys.sunrise);
-            sunset.textContent = formatTimestampToTime(weather_data.sys.sunset);
-            wind_speed.textContent = `${weather_data.wind.speed}Km/h`;
-            humidity.textContent = `${weather_data.main.humidity}%`;
-            pressure.textContent = weather_data.main.pressure;
-      
-                  // Store the temperature in Kelvin
-                  tempInKelvin = weather_data.main.temp;
-                  updateTemperatureDisplay(tempInKelvin, 'K');
-      
-                  if (weather_data.weather && weather_data.weather[0]) {
-                      changeWeatherIcon(weather_data.weather[0].main.toLowerCase());
-                  } else {
-                      console.error('Weather data is not in expected format.');
-                  }
-              }
-          } catch (error) {
-              console.error('Error:', error);
-          }
+      // Fetch location information based on IP
+      async function fetchLocationData(ip) {
+          const response = await fetch(`${CONFIG.ipApiUrl}?ip=${ip}&accessKey=${CONFIG.ipApiKey}`);
+          if (!response.ok) throw new Error('Failed to fetch location data');
+          return await response.json();
       }
       
-      // Function to change the weather icon based on the weather data
-      function changeWeatherIcon(weather = "clear", DayTime = "day") {
-          const weatherImage = document.getElementById('weatherimage');
-          if (weatherImage) {
-              weatherImage.src = `img/${DayTime}/${weather}.png`; // Ensure the file extension is correct
-          } else {
-              console.error('Image element not found.');
-          }
+      // Fetch weather data using latitude and longitude
+      async function fetchWeatherData(lat, lon) {
+          const response = await fetch(`${CONFIG.openWeatherMapUrl}?lat=${lat}&lon=${lon}&appid=${CONFIG.openWeatherApiKey}`);
+          if (!response.ok) throw new Error('Failed to fetch weather data');
+          return await response.json();
       }
       
-      // Function to format Unix timestamp to "Sunday 10 Oct" format
-      function formatTimestampToDayAndMonth(timestamp) {
+      // Utility function to format timestamp to "Sunday 10 Oct"
+      function formatDate(timestamp) {
           const date = new Date(timestamp * 1000);
           const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
           const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-          const dayName = days[date.getDay()];
-          const day = date.getDate();
-          const monthName = months[date.getMonth()];
-          return `${dayName} ${day} ${monthName}`;
+          return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
       }
       
-      // Function to convert Kelvin to Celsius
+      // Utility function to format Unix timestamp into "HH:MM"
+      function formatTime(timestamp) {
+          const date = new Date(timestamp * 1000);
+          return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      }
+      
+      // Convert Kelvin to Celsius
       function kelvinToCelsius(kelvin) {
           return kelvin - 273.15;
       }
       
-      // Update temperature display function
-      function updateTemperatureDisplay(temp, unit) {
-          const tempElement = document.getElementById('tempurature');
-          tempElement.textContent = `${temp.toFixed(1)}°`;
+      // Update UI with weather data
+      function updateWeatherUI(weatherData) {
+          document.getElementById("localisation").textContent = weatherData.name;
+          document.getElementById("date-today").textContent = formatDate(weatherData.dt);
+          document.getElementById("sunrise").textContent = formatTime(weatherData.sys.sunrise);
+          document.getElementById("sunset").textContent = formatTime(weatherData.sys.sunset);
+          document.getElementById("wind_speed").textContent = `${weatherData.wind.speed} Km/h`;
+          document.getElementById("humidity").textContent = `${weatherData.main.humidity}%`;
+          document.getElementById("pressure").textContent = weatherData.main.pressure;
+      
+          const tempInKelvin = weatherData.main.temp;
+          updateTemperatureDisplay(tempInKelvin, 'K');
+      
+          if (weatherData.weather && weatherData.weather[0]) {
+              changeWeatherIcon(weatherData.weather[0].main.toLowerCase());
+          }
       }
       
-      // Toggle event listener for temperature conversion between Kelvin and Celsius
-      document.getElementById('toggleTwo').addEventListener('change', function() {
-          if (this.checked) {
-              // Convert to Celsius
-              const tempInCelsius = kelvinToCelsius(tempInKelvin);
-              updateTemperatureDisplay(tempInCelsius, 'C');
+      // Update temperature display
+      function updateTemperatureDisplay(temp, unit) {
+          const tempElement = document.getElementById('tempurature');
+          tempElement.textContent = `${temp.toFixed(1)}°${unit}`;
+      }
+      
+      // Change weather icon based on weather conditions
+      function changeWeatherIcon(weather = "clear", DayTime = "day") {
+          const weatherImage = document.getElementById('weatherimage');
+          if (weatherImage) {
+              weatherImage.src = `img/${DayTime}/${weather}.png`;
           } else {
-              // Show Kelvin
+              console.error('Weather image element not found');
+          }
+      }
+      
+      // Handle temperature toggle between Celsius and Kelvin
+      document.getElementById('toggleTwo').addEventListener('change', function() {
+          const tempInKelvin = parseFloat(document.getElementById('tempurature').dataset.kelvin);
+          if (this.checked) {
+              updateTemperatureDisplay(kelvinToCelsius(tempInKelvin), 'C');
+          } else {
               updateTemperatureDisplay(tempInKelvin, 'K');
           }
       });
-
-
-      // Function to format the Unix timestamp into HH:MM format
-function formatTimestampToTime(timestamp) {
-          const date = new Date(timestamp * 1000); // Convert to milliseconds
-          let hours = date.getHours();
-          let minutes = date.getMinutes();
       
-          // Add leading zero to minutes if necessary
-          minutes = minutes < 10 ? '0' + minutes : minutes;
-      
-          // Return time in HH:MM format
-          return `${hours}:${minutes}`;
+      // Fetch and display weather data
+      async function displayWeatherData() {
+          try {
+              const ip = await fetchIpAddress();
+              const locationData = await fetchLocationData(ip);
+              const weatherData = await fetchWeatherData(locationData.latitude, locationData.longitude);
+              updateWeatherUI(weatherData);
+          } catch (error) {
+              console.error('Error fetching or displaying weather data:', error);
+          }
       }
-      let btn_refresh = document.getElementById("btn-refresh");
-btn_refresh.addEventListener("click", (e) => {
-    window.location.reload(); 
-});
-
       
-      // Call the function to display weather data
+      // Refresh button event listener
+      document.getElementById("btn-refresh").addEventListener("click", () => {
+          window.location.reload();
+      });
+      
+      // Initialize
       displayWeatherData();
-      
-     
       
