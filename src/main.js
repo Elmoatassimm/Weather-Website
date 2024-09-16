@@ -37,12 +37,18 @@ async function getWeatherData() {
                   let tempp = document.getElementById("tempurature");
                   let sunrise = document.getElementById("sunrise");
                   let sunset = document.getElementById("sunset");
+                  let wind_speed = document.getElementById("wind_speed");
+                  let humidity = document.getElementById("humidity");
+                  let pressure = document.getElementById("pressure");
       
                   localisation.textContent = weather_data.name;
                   date.textContent = formatTimestampToDayAndMonth(weather_data.dt);
                   // Display sunrise and sunset times in HH:MM format
             sunrise.textContent = formatTimestampToTime(weather_data.sys.sunrise);
             sunset.textContent = formatTimestampToTime(weather_data.sys.sunset);
+            wind_speed.textContent = `${weather_data.wind.speed}Km/h`;
+            humidity.textContent = `${weather_data.main.humidity}%`;
+            pressure.textContent = weather_data.main.pressure;
       
                   // Store the temperature in Kelvin
                   tempInKelvin = weather_data.main.temp;
